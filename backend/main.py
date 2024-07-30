@@ -2123,12 +2123,16 @@ if len(OAUTH_PROVIDERS) > 0:
         https_only=WEBUI_SESSION_COOKIE_SECURE,
     )
 
+# Retrieve the redirect URI base from environmental variable
+REDIRECT_URI_BASE = os.getenv("REDIRECT_URI_BASE", "http://localhost:8000")
 
 @app.get("/oauth/{provider}/login")
 async def oauth_login(provider: str, request: Request):
     if provider not in OAUTH_PROVIDERS:
         raise HTTPException(404)
-    redirect_uri = request.url_for("oauth_callback", provider=provider)
+
+# Construct redirect_uri using the environmental variable above
+    redirect_uri = f"{REDIRECT_URI_BASE}/oauth/{provider}/callback"
     return await oauth.create_client(provider).authorize_redirect(request, redirect_uri)
 
 
